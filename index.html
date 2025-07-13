@@ -1,0 +1,800 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HiStar - Conectando Negócios e Clientes</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.5/gsap.min.js"></script>
+    <style>
+        body {
+            overflow-x: hidden;
+            background: #0a0a1e;
+            color: #ffffff;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        /* Header */
+        header {
+            background: rgba(26, 26, 61, 0.2);
+            position: fixed;
+            width: 100%;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 2px solid transparent;
+            animation: gradientBorder 6s ease infinite;
+            transition: all 0.4s ease-in-out;
+        }
+
+        header.scrolled {
+            background: rgba(26, 26, 61, 0.5);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        @keyframes gradientBorder {
+            0% { border-image: linear-gradient(45deg, #a855f7, #7e22ce) 1; }
+            50% { border-image: linear-gradient(45deg, #7e22ce, #a855f7) 1; }
+            100% { border-image: linear-gradient(45deg, #a855f7, #7e22ce) 1; }
+        }
+
+        .logo img {
+            max-height: 50px;
+            width: auto;
+            transition: transform 0.3s ease-in-out, filter 0.3s ease-in-out;
+        }
+
+        .logo img:hover {
+            transform: scale(1.1) rotate(5deg);
+            filter: brightness(1.2);
+        }
+
+        .hamburger {
+            display: block;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: #a855f7;
+            padding: 0.5rem;
+            transition: color 0.3s ease-in-out, transform 0.3s ease-in-out;
+        }
+
+        .hamburger:hover {
+            color: #d8b4fe;
+            transform: rotate(90deg);
+        }
+
+        nav {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            background: rgba(26, 26, 61, 0.3);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            padding: 1.5rem;
+            border-bottom-left-radius: 15px;
+            border-bottom-right-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        nav.active {
+            display: block;
+        }
+
+        nav a {
+            display: block;
+            padding: 0.75rem 1.5rem;
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease-in-out, background 0.3s ease-in-out, transform 0.3s ease-in-out;
+            border-radius: 8px;
+            font-size: 1.1rem;
+        }
+
+        nav a:hover {
+            color: #a855f7;
+            background: rgba(168, 85, 247, 0.15);
+            transform: translateX(5px);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .cta-button {
+            background: linear-gradient(45deg, #a855f7, #7e22ce);
+            color: white;
+            padding: 0.25rem 1rem;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            box-shadow: 0 0 10px rgba(168, 85, 247, 0.3);
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out, background 0.3s ease-in-out;
+            line-height: 1.5;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.5);
+            background: linear-gradient(45deg, #d8b4fe, #a855f7);
+        }
+
+        .header-cta-button {
+            background: #a855f7;
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1rem;
+            box-shadow: 0 0 8px rgba(168, 85, 247, 0.4), inset 0 0 4px rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out, background 0.3s ease-in-out;
+        }
+
+        .header-cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 12px rgba(168, 85, 247, 0.6), inset 0 0 6px rgba(255, 255, 255, 0.3);
+            background: #d8b4fe;
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+            background: #0a0a1e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 2rem;
+        }
+
+        #three-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            color: white;
+            max-width: 700px;
+            padding: 2rem;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            text-shadow: 0 0 20px rgba(168, 85, 247, 0.5);
+            transform: perspective(500px) translateZ(0);
+            animation: float 3s ease-in-out infinite;
+            margin-bottom: 2.5rem; /* Increased spacing */
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .animated-title {
+            font-size: 1.5rem;
+            color: #a855f7;
+            text-shadow: 0 0 10px rgba(168, 85, 247, 0.5);
+            margin: 2.5rem auto; /* Increased spacing */
+            min-height: 2rem;
+            position: relative;
+            font-family: 'Courier New', monospace;
+            max-width: 500px;
+        }
+
+        .animated-title span {
+            opacity: 0;
+            position: absolute;
+            width: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 2px;
+            height: 1.5rem;
+            background: #a855f7;
+            vertical-align: middle;
+            animation: blink 0.7s step-end infinite;
+        }
+
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: perspective(500px) translateY(0) translateZ(0); }
+            50% { transform: perspective(500px) translateY(-20px) translateZ(20px); }
+        }
+
+        /* Sobre o Produto */
+        .sobre-produto {
+            background: linear-gradient(180deg, #1a1a3d, #0a0a1e);
+        }
+
+        .sobre-produto img {
+            transition: transform 0.5s ease-in-out;
+            border: 2px solid #a855f7;
+            border-radius: 10px;
+        }
+
+        .sobre-produto img:hover {
+            transform: perspective(1000px) rotateY(10deg) scale(1.05);
+        }
+
+        /* Benefícios */
+        .beneficio-item {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.5s ease-in-out;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #a855f7;
+            border-radius: 10px;
+            padding: 1.5rem;
+        }
+
+        .beneficio-item.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .beneficio-item i {
+            font-size: 2.5rem;
+            color: #a855f7;
+            text-shadow: 0 0 10px rgba(168, 85, 247, 0.5);
+        }
+
+        /* Depoimentos */
+        .depoimento {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease-in-out;
+            border: 1px solid #a855f7;
+        }
+
+        .depoimento:hover {
+            transform: translateY(-10px) rotateX(5deg);
+        }
+
+        /* Como Funciona */
+        .como-funciona-item {
+            opacity: 0;
+            transform: scale(0.8);
+            transition: all 0.5s ease-in-out;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #a855f7;
+            border-radius: 10px;
+            padding: 1.5rem;
+        }
+
+        .como-funciona-item.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* Oferta */
+        .oferta {
+            background: linear-gradient(45deg, #a855f7, #7e22ce);
+            color: white;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .oferta::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.2), transparent);
+            transform: rotate(45deg);
+            animation: shimmer 5s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: rotate(45deg) translateX(-100%); }
+            100% { transform: rotate(45deg) translateX(100%); }
+        }
+
+        /* FAQ */
+        .faq-item summary {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: background 0.3s ease-in-out;
+            color: #ffffff;
+        }
+
+        .faq-item summary:hover {
+            background: rgba(168, 85, 247, 0.2);
+        }
+
+        /* Form */
+        .form-input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid #a855f7;
+            color: white;
+            border-radius: 5px;
+            padding: 0.5rem;
+            width: 100%;
+            margin-bottom: 1rem;
+            transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #d8b4fe;
+            box-shadow: 0 0 10px rgba(216, 180, 254, 0.5);
+        }
+
+        /* WhatsApp Flutuante */
+        .whatsapp-float {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #a855f7;
+            padding: 1rem;
+            border-radius: 50%;
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.5);
+            animation: pulse 2s infinite;
+            z-index: 1000;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .whatsapp-float:hover {
+            transform: scale(1.1);
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        /* Pentagon Border */
+        .pentagon-border {
+            position: relative;
+            padding: 1rem;
+        }
+
+        .pentagon-border::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            border: 2px solid transparent;
+            clip-path: polygon(50% 0%, 95% 38%, 75% 100%, 25% 100%, 5% 38%);
+            z-index: -1;
+            animation: gradientBorder 6s ease infinite;
+        }
+
+        /* Responsividade Base */
+        @media (min-width: 769px) {
+            .hamburger {
+                display: none;
+            }
+
+            nav {
+                display: flex;
+                position: static;
+                width: auto;
+                background: none;
+                padding: 0;
+                gap: 2rem;
+            }
+
+            nav a {
+                display: inline-block;
+                padding: 0.5rem 1rem;
+            }
+
+            .header-actions {
+                flex-direction: row;
+                align-items: center;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .hero h1 {
+                font-size: 4rem;
+            }
+
+            .animated-title {
+                font-size: 2rem;
+            }
+
+            .cta-button {
+                font-size: 1.5rem;
+                padding: 1.25rem 3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header id="header">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center py-3">
+            <div class="logo">
+                <img src="https://via.placeholder.com/200x60.png?text=HiStar+Logo" alt="HiStar Logo">
+            </div>
+            <div class="hamburger" id="hamburger">☰</div>
+            <nav id="nav">
+                <a href="#inicio">Início</a>
+                <a href="#sobre">Serviços</a>
+                <a href="#beneficios">Benefícios</a>
+                <a href="#depoimentos">Depoimentos</a>
+                <a href="#faq">FAQ</a>
+                <a href="#contato">Contato</a>
+            </nav>
+            <div class="header-actions">
+                <a href="#contato" class="header-cta-button">Inscrever-se</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="inicio" class="hero">
+        <canvas id="three-canvas"></canvas>
+        <div class="hero-content">
+            <h1>Conecte-se e Cresça com a HiStar</h1>
+            <div class="animated-title">
+                <span></span>
+                <span class="cursor"></span>
+            </div>
+            <a href="#contato" class="cta-button">Criar Conta</a>
+        </div>
+    </section>
+
+    <!-- Sobre o Produto -->
+    <section id="sobre" class="py-16 sobre-produto">
+        <h2 class="text-3xl md:text-4xl font-bold text-center mb-8">Serviços</h2>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div>
+                <p class="mb-4">Crie um perfil para o seu negócio no marketplace da HiStar e conecte-se com clientes de forma rápida e eficiente. Nossa plataforma é projetada para maximizar sua visibilidade e escalar suas vendas.</p>
+                <ul class="list-disc pl-6">
+                    <li>Perfil personalizável</li>
+                    <li>Integração com ferramentas de marketing</li>
+                    <li>Suporte 24/7</li>
+                </ul>
+            </div>
+            <div class="pentagon-border">
+                <img src="https://via.placeholder.com/500" alt="Plataforma HiStar" class="rounded-lg">
+            </div>
+        </div>
+    </section>
+
+    <!-- Benefícios -->
+    <section id="beneficios" class="py-16">
+        <h2 class="text-3xl md:text-4xl font-bold text-center mb-8">Benefícios e Diferenciais</h2>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="beneficio-item text-center">
+                <i class="fas fa-star"></i>
+                <h3 class="text-xl font-bold mb-2">Destaque o Seu Negócio</h3>
+                <p>Crie um perfil atrativo que chama a atenção dos clientes.</p>
+            </div>
+            <div class="beneficio-item text-center">
+                <i class="fas fa-rocket"></i>
+                <h3 class="text-xl font-bold mb-2">Escale Sua Presença</h3>
+                <p>Alcance mais clientes com ferramentas de marketing integradas.</p>
+            </div>
+            <div class="beneficio-item text-center">
+                <i class="fas fa-globe"></i>
+                <h3 class="text-xl font-bold mb-2">Cresça no Digital</h3>
+                <p>Expanda sua marca no mundo digital com facilidade.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Depoimentos -->
+    <section id="depoimentos" class="py-16">
+        <h2 class="text-3xl md:text-4xl font-bold text-center mb-8">O que Nossos Clientes Dizem</h2>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="depoimento p-6">
+                <img src="https://via.placeholder.com/80" alt="Cliente 1" class="mx-auto rounded-full mb-4">
+                <p class="mb-2">"A HiStar transformou meu negócio! Meu perfil atraiu mais clientes em semanas."</p>
+                <p class="font-bold">Ana C.</p>
+            </div>
+            <div class="depoimento p-6">
+                <img src="https://via.placeholder.com/80" alt="Cliente 2" class="mx-auto rounded-full mb-4">
+                <p class="mb-2">"Plataforma fácil de usar e suporte incrível. Recomendo!"</p>
+                <p class="font-bold">Carlos M.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Como Funciona -->
+    <section id="como-funciona" class="py-16">
+        <h2 class="text-3xl md:text-4xl font-bold text-center mb-8">Como Funciona</h2>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="como-funciona-item text-center">
+                <h3 class="text-xl font-bold mb-2">1. Crie Seu Perfil</h3>
+                <p>Configure seu negócio com um perfil personalizado.</p>
+            </div>
+            <div class="como-funciona-item text-center">
+                <h3 class="text-xl font-bold mb-2">2. Conecte-se</h3>
+                <p>Alcance clientes através da nossa plataforma.</p>
+            </div>
+            <div class="como-funciona-item text-center">
+                <h3 class="text-xl font-bold mb-2">3. Cresça</h3>
+                <p>Aproveite o aumento de visibilidade e vendas!</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Oferta -->
+    <section id="oferta" class="py-16 oferta">
+        <h2 class="text-3xl md:text-4xl font-bold text-center mb-8">Oferta Especial</h2>
+        <p class="text-lg mb-8">Crie sua conta agora com 30% de desconto no primeiro mês e 7 dias de garantia!</p>
+        <a href="#contato" class="cta-button">Inscreva-se Agora</a>
+    </section>
+
+    <!-- FAQ -->
+    <section id="faq" class="py-16">
+        <h2 class="text-3xl md:text-4xl font-bold text-center mb-8">Perguntas Frequentes</h2>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <details class="faq-item mb-4">
+                <summary>Como criar um perfil?</summary>
+                <p class="p-4">Basta se inscrever e seguir o passo a passo no painel de configuração.</p>
+            </details>
+            <details class="faq-item mb-4">
+                <summary>Qual o custo do serviço?</summary>
+                <p class="p-4">Oferecemos planos acessíveis, com desconto no primeiro mês.</p>
+            </details>
+            <details class="faq-item mb-4">
+                <summary>Posso cancelar a qualquer momento?</summary>
+                <p class="p-4">Sim, você pode cancelar dentro dos 7 dias de garantia sem custo.</p>
+            </details>
+        </div>
+    </section>
+
+    <!-- CTA Final -->
+    <section id="contato" class="py-16 text-center">
+        <h2 class="text-3xl md:text-4xl font-bold mb-8">Comece Agora com a HiStar!</h2>
+        <p class="text-lg mb-8">Crie sua conta e conecte seu negócio a milhares de clientes.</p>
+        <div class="max-w-md mx-auto">
+            <input type="text" placeholder="Nome do Negócio" class="form-input">
+            <input type="email" placeholder="Email" class="form-input">
+            <input type="text" placeholder="Área de Atuação" class="form-input">
+            <input type="text" placeholder="Nome de Usuário" class="form-input">
+            <input type="password" placeholder="Senha" class="form-input">
+            <a href="#" class="cta-button block text-center">Criar Conta</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-8 text-center">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="footer-links mb-4">
+                <a href="#" class="text-white mx-4 hover:text-purple-400 transition-colors duration-300">Sobre a Empresa</a>
+                <a href="#" class="text-white mx-4 hover:text-purple-400 transition-colors duration-300">Política de Privacidade</a>
+                <a href="#" class="text-white mx-4 hover:text-purple-400 transition-colors duration-300">Termos de Uso</a>
+            </div>
+            <div class="social-icons mb-4 flex justify-center gap-4">
+                <a href="#" class="text-white hover:text-purple-400 transition-colors duration-300"><i class="fab fa-facebook"></i></a>
+                <a href="#" class="text-white hover:text-purple-400 transition-colors duration-300"><i class="fab fa-instagram"></i></a>
+                <a href="#" class="text-white hover:text-purple-400 transition-colors duration-300"><i class="fab fa-whatsapp"></i></a>
+            </div>
+            <p>histarmarketplace@gmail.com | +244 938 423 602 | www.histar.com</p>
+            <p>© 2025 HiStar. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <!-- WhatsApp Flutuante -->
+    <a href="https://wa.me/551112345678" class="whatsapp-float" target="_blank">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+
+    <!-- Scripts -->
+    <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+    <script>
+        // Header Scroll Effect
+        window.addEventListener('scroll', () => {
+            const header = document.getElementById('header');
+            header.classList.toggle('scrolled', window.scrollY > 50);
+        });
+
+        // Mobile Menu Toggle
+        const hamburger = document.getElementById('hamburger');
+        const nav = document.getElementById('nav');
+
+        hamburger.addEventListener('click', () => {
+            nav.classList.toggle('active');
+        });
+
+        // Close mobile menu when a link is clicked
+        nav.addEventListener('click', (e) => {
+            if (e.target.tagName === 'A') {
+                nav.classList.remove('active');
+            }
+        });
+
+        // GSAP Animations for Hero Section
+        gsap.from('.hero-content h1', { opacity: 0, y: 100, duration: 1, delay: 0.5 });
+        gsap.from('.hero-content .cta-button', { opacity: 0, scale: 0.8, duration: 1, delay: 1.1 });
+
+        // Typing Animation
+        const phrases = ['Cresça no Digital', 'Escale o seu Negócio', 'Crie sua presença online', 'Em Breve', 'Brilhe com a HiStar'];
+        const animatedTitle = document.querySelector('.animated-title span');
+        const cursor = document.querySelector('.cursor');
+        let currentPhrase = 0;
+
+        function typeText(text, callback) {
+            let i = 0;
+            animatedTitle.textContent = '';
+            gsap.set(animatedTitle, { opacity: 1 });
+            const type = () => {
+                if (i < text.length) {
+                    animatedTitle.textContent += text.charAt(i);
+                    i++;
+                    setTimeout(type, 100);
+                } else {
+                    setTimeout(() => {
+                        gsap.to(animatedTitle, {
+                            opacity: 0,
+                            duration: 0.5,
+                            onComplete: callback
+                        });
+                    }, 1500);
+                }
+            };
+            type();
+        }
+
+        function animateTitle() {
+            typeText(phrases[currentPhrase], () => {
+                currentPhrase = (currentPhrase + 1) % phrases.length;
+                setTimeout(animateTitle, 500);
+            });
+        }
+
+        animateTitle();
+
+        // Scroll Animations for Sections
+        const animateOnScroll = (selector) => {
+            const elements = document.querySelectorAll(selector);
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.2 });
+            elements.forEach(el => observer.observe(el));
+        };
+
+        animateOnScroll('.beneficio-item');
+        animateOnScroll('.como-funciona-item');
+
+        // Three.js Crystal Pentagon Background (Reduced to 1/7th)
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('three-canvas'), alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+
+        // Star Field (Reduced Density)
+        const starGeometry = new THREE.BufferGeometry();
+        const starMaterial = new THREE.PointsMaterial({ color: 0xffffff, size: 0.05 });
+        const starVertices = [];
+        for (let i = 0; i < 1429; i++) {
+            const x = (Math.random() - 0.5) * 285.7;
+            const y = (Math.random() - 0.5) * 285.7;
+            const z = (Math.random() - 0.5) * 285.7;
+            starVertices.push(x, y, z);
+        }
+        starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starVertices, 3));
+        const stars = new THREE.Points(starGeometry, starMaterial);
+        scene.add(stars);
+
+        // Crystal Pentagon (Reduced Size)
+        const pentagonGeometry = new THREE.BufferGeometry();
+        const vertices = new Float32Array([
+            0, 0.143, 0,
+            0.136, 0.044, 0,
+            0.084, -0.116, 0,
+            -0.084, -0.116, 0,
+            -0.136, 0.044, 0
+        ]);
+        const indices = [
+            0, 1, 2,
+            0, 2, 3,
+            0, 3, 4,
+            0, 4, 1
+        ];
+        pentagonGeometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+        pentagonGeometry.setIndex(indices);
+        const pentagonMaterial = new THREE.MeshBasicMaterial({
+            color: 0xa855f7,
+            transparent: true,
+            opacity: 0.5,
+            side: THREE.DoubleSide,
+            wireframe: true
+        });
+        const pentagon = new THREE.Mesh(pentagonGeometry, pentagonMaterial);
+        pentagon.scale.set(0.286, 0.286, 0.286);
+        pentagon.position.z = -0.714;
+        scene.add(pentagon);
+
+        camera.position.z = 1.429;
+
+        function animate() {
+            requestAnimationFrame(animate);
+            stars.rotation.y += 0.0005;
+            pentagon.rotation.x += 0.005;
+            pentagon.rotation.y += 0.005;
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // Resize Handler
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+
+            if (window.innerWidth < 769) {
+                nav.classList.remove('active');
+            }
+        });
+    </script>
+</body>
+</html>
