@@ -1,11 +1,11 @@
 <script type="text/javascript">
-        var gk_isXlsx = false;
-        var gk_xlsxFileLookup = {};
-        var gk_fileData = {};
-        function filledCell(cell) {
-          return cell !== '' && cell != null;
-        }
-        function loadFileData(filename) {
+    var gk_isXlsx = false;
+    var gk_xlsxFileLookup = {};
+    var gk_fileData = {};
+    function filledCell(cell) {
+        return cell !== '' && cell != null;
+    }
+    function loadFileData(filename) {
         if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
             try {
                 var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
@@ -19,11 +19,11 @@
 
                 // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
                 var headerRowIndex = filteredData.findIndex((row, index) =>
-                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                    row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
                 );
                 // Fallback
                 if (headerRowIndex === -1 || headerRowIndex > 25) {
-                  headerRowIndex = 0;
+                    headerRowIndex = 0;
                 }
 
                 // Convert filtered JSON back to CSV
@@ -36,9 +36,11 @@
             }
         }
         return gk_fileData[filename] || "";
-        }
-        </script><!DOCTYPE html>
+    }
+</script>
+<!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -73,9 +75,17 @@
         }
 
         @keyframes gradientBorder {
-            0% { border-image: linear-gradient(45deg, #a855f7, #7e22ce) 1; }
-            50% { border-image: linear-gradient(45deg, #7e22ce, #a855f7) 1; }
-            100% { border-image: linear-gradient(45deg, #a855f7, #7e22ce) 1; }
+            0% {
+                border-image: linear-gradient(45deg, #a855f7, #7e22ce) 1;
+            }
+
+            50% {
+                border-image: linear-gradient(45deg, #7e22ce, #a855f7) 1;
+            }
+
+            100% {
+                border-image: linear-gradient(45deg, #a855f7, #7e22ce) 1;
+            }
         }
 
         .logo img {
@@ -218,7 +228,8 @@
             text-shadow: 0 0 20px rgba(168, 85, 247, 0.5);
             transform: perspective(500px) translateZ(0);
             animation: float 3s ease-in-out infinite;
-            margin-bottom: 2.5rem; /* Increased spacing */
+            margin-bottom: 2.5rem;
+            /* Increased spacing */
             font-weight: 700;
             letter-spacing: -0.5px;
         }
@@ -227,7 +238,8 @@
             font-size: 1.5rem;
             color: #a855f7;
             text-shadow: 0 0 10px rgba(168, 85, 247, 0.5);
-            margin: 2.5rem auto; /* Increased spacing */
+            margin: 2.5rem auto;
+            /* Increased spacing */
             min-height: 2rem;
             position: relative;
             font-family: 'Courier New', monospace;
@@ -252,12 +264,21 @@
         }
 
         @keyframes blink {
-            50% { opacity: 0; }
+            50% {
+                opacity: 0;
+            }
         }
 
         @keyframes float {
-            0%, 100% { transform: perspective(500px) translateY(0) translateZ(0); }
-            50% { transform: perspective(500px) translateY(-20px) translateZ(20px); }
+
+            0%,
+            100% {
+                transform: perspective(500px) translateY(0) translateZ(0);
+            }
+
+            50% {
+                transform: perspective(500px) translateY(-20px) translateZ(20px);
+            }
         }
 
         /* Sobre o Produto */
@@ -342,14 +363,19 @@
             left: -50%;
             width: 200%;
             height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.2), transparent);
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.2), transparent);
             transform: rotate(45deg);
             animation: shimmer 5s infinite;
         }
 
         @keyframes shimmer {
-            0% { transform: rotate(45deg) translateX(-100%); }
-            100% { transform: rotate(45deg) translateX(100%); }
+            0% {
+                transform: rotate(45deg) translateX(-100%);
+            }
+
+            100% {
+                transform: rotate(45deg) translateX(100%);
+            }
         }
 
         /* FAQ */
@@ -403,9 +429,17 @@
         }
 
         @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.2); }
-            100% { transform: scale(1); }
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.2);
+            }
+
+            100% {
+                transform: scale(1);
+            }
         }
 
         /* Pentagon Border */
@@ -469,12 +503,13 @@
         }
     </style>
 </head>
+
 <body>
     <!-- Header -->
     <header id="header">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center py-3">
             <div class="logo">
-                <img src="https://via.placeholder.com/200x60.png?text=HiStar+Logo" alt="HiStar Logo">
+                <img src="imgs/logo/logohistarbranca.png" alt="HiStar Logo">
             </div>
             <div class="hamburger" id="hamburger">☰</div>
             <nav id="nav">
@@ -509,7 +544,9 @@
         <h2 class="text-3xl md:text-4xl font-bold text-center mb-8">Serviços</h2>
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 gap-8">
             <div>
-                <p class="mb-4">Crie um perfil para o seu negócio no marketplace da HiStar e conecte-se com clientes de forma rápida e eficiente. Nossa plataforma é projetada para maximizar sua visibilidade e escalar suas vendas.</p>
+                <p class="mb-4">Crie um perfil para o seu negócio no marketplace da HiStar e conecte-se com clientes de
+                    forma rápida e eficiente. Nossa plataforma é projetada para maximizar sua visibilidade e escalar
+                    suas vendas.</p>
                 <ul class="list-disc pl-6">
                     <li>Perfil personalizável</li>
                     <li>Integração com ferramentas de marketing</li>
@@ -549,12 +586,12 @@
         <h2 class="text-3xl md:text-4xl font-bold text-center mb-8">O que Nossos Clientes Dizem</h2>
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 gap-8">
             <div class="depoimento p-6">
-                <img src="https://via.placeholder.com/80" alt="Cliente 1" class="mx-auto rounded-full mb-4">
+                <img src="imgs/clients/client_0.png" alt="Cliente 1" class="mx-auto rounded-full mb-4">
                 <p class="mb-2">"A HiStar transformou meu negócio! Meu perfil atraiu mais clientes em semanas."</p>
                 <p class="font-bold">Ana C.</p>
             </div>
             <div class="depoimento p-6">
-                <img src="https://via.placeholder.com/80" alt="Cliente 2" class="mx-auto rounded-full mb-4">
+                <img src="imgs/clients/client_1.png" alt="Cliente 2" class="mx-auto rounded-full mb-4">
                 <p class="mb-2">"Plataforma fácil de usar e suporte incrível. Recomendo!"</p>
                 <p class="font-bold">Carlos M.</p>
             </div>
@@ -624,14 +661,20 @@
     <footer class="bg-gray-900 text-white py-8 text-center">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="footer-links mb-4">
-                <a href="#" class="text-white mx-4 hover:text-purple-400 transition-colors duration-300">Sobre a Empresa</a>
-                <a href="#" class="text-white mx-4 hover:text-purple-400 transition-colors duration-300">Política de Privacidade</a>
-                <a href="#" class="text-white mx-4 hover:text-purple-400 transition-colors duration-300">Termos de Uso</a>
+                <a href="#" class="text-white mx-4 hover:text-purple-400 transition-colors duration-300">Sobre a
+                    Empresa</a>
+                <a href="#" class="text-white mx-4 hover:text-purple-400 transition-colors duration-300">Política de
+                    Privacidade</a>
+                <a href="#" class="text-white mx-4 hover:text-purple-400 transition-colors duration-300">Termos de
+                    Uso</a>
             </div>
             <div class="social-icons mb-4 flex justify-center gap-4">
-                <a href="#" class="text-white hover:text-purple-400 transition-colors duration-300"><i class="fab fa-facebook"></i></a>
-                <a href="#" class="text-white hover:text-purple-400 transition-colors duration-300"><i class="fab fa-instagram"></i></a>
-                <a href="#" class="text-white hover:text-purple-400 transition-colors duration-300"><i class="fab fa-whatsapp"></i></a>
+                <a href="#" class="text-white hover:text-purple-400 transition-colors duration-300"><i
+                        class="fab fa-facebook"></i></a>
+                <a href="#" class="text-white hover:text-purple-400 transition-colors duration-300"><i
+                        class="fab fa-instagram"></i></a>
+                <a href="#" class="text-white hover:text-purple-400 transition-colors duration-300"><i
+                        class="fab fa-whatsapp"></i></a>
             </div>
             <p>histarmarketplace@gmail.com | +244 938 423 602 | www.histar.com</p>
             <p>© 2025 HiStar. Todos os direitos reservados.</p>
@@ -797,4 +840,5 @@
         });
     </script>
 </body>
+
 </html>
