@@ -651,19 +651,24 @@
 
   <div class="max-w-md mx-auto">
     <form action="https://formsubmit.co/histarmarketplace@gmail.com" method="POST" class="space-y-4">
-      <!-- Configurações ocultas -->
+      <!-- Campos ocultos do FormSubmit -->
       <input type="hidden" name="_captcha" value="false">
-      <input type="hidden" name="_subject" value="Novo Cadastro HiStar">
       <input type="hidden" name="_template" value="table">
+      <input type="hidden" name="_subject" value="Novo Cadastro HiStar">
       <input type="hidden" name="_next" value="https://histar.vercel.app/confirmation.html">
 
-
-      <!-- Campos do formulário -->
+      <!-- Campos do usuário -->
       <input type="text" name="nome_negocio" placeholder="Nome do Negócio" class="form-input" required>
       <input type="email" name="email" placeholder="Email" class="form-input" required>
       <input type="text" name="area_atuacao" placeholder="Área de Atuação" class="form-input">
       <input type="text" name="username" placeholder="Nome de Usuário" class="form-input" required>
       <input type="password" name="senha" placeholder="Senha" class="form-input" required>
+
+      <!-- Botão de envio -->
+      <button type="submit" class="cta-button block w-full text-center">Criar Conta</button>
+    </form>
+  </div>
+</section>
 
       <!-- Botão de envio -->
       <button type="submit" class="cta-button block w-full text-center">Criar Conta</button>
