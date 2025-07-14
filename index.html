@@ -646,26 +646,30 @@
 
     <!-- CTA Final -->
     <section id="contato" class="py-16 text-center">
-      <h2 class="text-3xl md:text-4xl font-bold mb-8">Comece Agora com a HiStar!</h2>
-      <p class="text-lg mb-8">Crie sua conta e conecte seu negócio a milhares de clientes.</p>
-  
-      <div class="max-w-md mx-auto">
-        <form action="https://formsubmit.co/histarmarketplace@gmail.com" method="POST" class="space-y-4">
-      <!-- Evita que robôs enviem spam -->
-          <input type="hidden" name="_captcha" value="false">
-          <input type="hidden" name="_subject" value="Novo Cadastro HiStar">
-          <input type="hidden" name="_template" value="table">
+  <h2 class="text-3xl md:text-4xl font-bold mb-8">Comece Agora com a HiStar!</h2>
+  <p class="text-lg mb-8">Crie sua conta e conecte seu negócio a milhares de clientes.</p>
 
-          <input type="text" name="nome_negocio" placeholder="Nome do Negócio" class="form-input" required>
-          <input type="email" name="email" placeholder="Email" class="form-input" required>
-          <input type="text" name="area_atuacao" placeholder="Área de Atuação" class="form-input">
-          <input type="text" name="username" placeholder="Nome de Usuário" class="form-input" required>
-          <input type="password" name="senha" placeholder="Senha" class="form-input" required>
+  <div class="max-w-md mx-auto">
+    <form action="https://formsubmit.co/histarmarketplace@gmail.com" method="POST" class="space-y-4">
+      <!-- Configurações ocultas -->
+      <input type="hidden" name="_captcha" value="false">
+      <input type="hidden" name="_subject" value="Novo Cadastro HiStar">
+      <input type="hidden" name="_template" value="table">
+      <input type="hidden" name="_next" value="confirmation.html">
 
-          <button type="submit" class="cta-button block w-full text-center">Criar Conta</button>
-        </form>
-      </div>
-     </section>
+      <!-- Campos do formulário -->
+      <input type="text" name="nome_negocio" placeholder="Nome do Negócio" class="form-input" required>
+      <input type="email" name="email" placeholder="Email" class="form-input" required>
+      <input type="text" name="area_atuacao" placeholder="Área de Atuação" class="form-input">
+      <input type="text" name="username" placeholder="Nome de Usuário" class="form-input" required>
+      <input type="password" name="senha" placeholder="Senha" class="form-input" required>
+
+      <!-- Botão de envio -->
+      <button type="submit" class="cta-button block w-full text-center">Criar Conta</button>
+    </form>
+  </div>
+</section>
+
 
 
     <!-- Footer -->
