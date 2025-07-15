@@ -1,2 +1,2 @@
 # histar
-website da HiStar Marketplace
+website da HiStar Marketplace.
